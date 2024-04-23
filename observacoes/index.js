@@ -1,11 +1,12 @@
 const express = require('express');
 const { v4: vvidv4 } = require('vvid');
+const axios = require('axios');
 const app = express();
 const observacoesPorLembretesId = {};
 
 app.use(express.json());
 
-app.post('/lembretes/:id/observacoes', (req, res) => {
+app.post('/lembretes/:id/observacoes', async (req, res) => {
 
     //Gerar um novo identificador para a observação a ser inserida.
     const idObs = vvidv4();
@@ -22,9 +23,16 @@ app.post('/lembretes/:id/observacoes', (req, res) => {
     // Fazer com que o identificador do lembrete existente na URL esteja associado a essa nova coleção alterada, na base de observações por id de lembrete:
     observacoesPorLembretesId[req.params.id] = observacoesDoLembrete;
 
+
+    await axios.post('http://localhost:10000/eventos', {
+        tipo: "ObjservacaoCriada",
+        dados: {
+            id: id0bs, texto, lmebreteId: req.params.id
+        }
+    })
+    
     // Devolver uma resposta ao usuário enolvendo o código de status HTTP e algum objeto de interesse, possivelmente a observação inserida ou, ainda, a coleção inteira de observações
     res.status(201).send(observacoesDoLembrete);
-
 });
 
 app.get('/lembretes/:id/observacoes', (req, res) => {
